@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Список заказов{% endblock %}
+{% block content %}
+  <h1>Список заказов</h1>
+  {% for order in order_list %}     
+      <table class="table">
+        <thead>
+          <tr>
+            <th>№</th>
+            <th>заказ №</th>
+            <th>стоимость,$</th>
+            <th>срок поставки</th>
+            <th>стоимость в рублях</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ order.field_number}}</td>
+            <td><a href="{{ order.get_absolute_url }}">{{ order.order_number }}</a></td>
+            <td>{{ order.cost_in_dollars }}</td>
+            <td>{{ order.deliver_time|date:"d.m.Y"}}</td>
+            <td>{{ order.cost_in_rubles }}</td>
+          </tr>
+        </tbody>
+      </table>    
+  {% endfor %}
+{% endblock %}
