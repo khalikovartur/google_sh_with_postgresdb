@@ -43,8 +43,8 @@ def get_orders_table():
     return values['values']
 
 def save_data():
-    usd_rate = get_usd_rate()()
-    orders_table = get_orders_table()()
+    usd_rate = get_usd_rate()
+    orders_table = get_orders_table()
     for row in orders_table:
         if row:
             try:
