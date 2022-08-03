@@ -1,30 +1,22 @@
+import os
+import schedule
 import requests
 import xml.etree.ElementTree as ET 
 import httplib2
 from  googleapiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
-
-import os
 import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
-
 from table.models import Order
-import schedule
-import re
 
-
-
-def send_request(url):
-    response = requests.get(url)
-    return response.content
 
 def get_usd():
     url_cb = 'https://www.cbr.ru/scripts/XML_daily.asp'
-    str_bytes = send_request(url_cb)
-    str_python = str_bytes.decode('windows-1252', 'ignore')
+    response = requests.get(url_cb)
+    str_python = response.content.decode('windows-1252', 'ignore')
+    
     root = ET.fromstring(str_python)
-
     for child in root:
         if child.attrib == {'ID': 'R01235'}:
             usd_str = child[4].text
@@ -33,8 +25,8 @@ def get_usd():
 
 def get_sheets():       
     CREDENTIALS_FILE = 'creds.json'
-    spreadsheet_id = '1C4gRZeZ1C-fqDkUcjRzqbW5qvx_rZYlwj_FNrte3pGI'
     
+    spreadsheet_id = '1C4gRZeZ1C-fqDkUcjRzqbW5qvx_rZYlwj_FNrte3pGI'
     credentials = ServiceAccountCredentials.from_json_keyfile_name(
         CREDENTIALS_FILE,
         ['https://www.googleapis.com/auth/spreadsheets',
@@ -70,7 +62,6 @@ def save_data():
         
 def main():
     schedule.every(2).minutes.do(save_data)
-    
     while True:
         schedule.run_pending()
     
