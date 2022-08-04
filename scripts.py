@@ -1,10 +1,12 @@
 import os
+from datetime import datetime
 import schedule
 import requests
 import xml.etree.ElementTree as ET 
 import httplib2
 from  googleapiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
+import telebot
 import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
@@ -41,13 +43,13 @@ def get_orders_table():
         'https://www.googleapis.com/auth/drive'])
     httpAuth = credentials.authorize(httplib2.Http())
     service = build('sheets', 'v4', http=httpAuth)
-
     table_values = service.spreadsheets().values().get(
         spreadsheetId=SPREADSHEET_ID,
         range='A2:500',
         majorDimension='ROWS'
     ).execute()
-    return table_values['values']
+    return tuple(table_values['values'])
+
 
 def save_data_in_db():
     """This function saves data from google sheets in to 
@@ -71,15 +73,42 @@ def save_data_in_db():
                 order.save()
             except Exception:
                 print(Exception)
+                
+                
+def sending_notification():
+    """This function checks the delivery date in Google Sheets and if
+    the deadline is violated, it sends a notification to Telegram"""
+    
+    TOKEN = '5344813682:AAHbi46qwEBeI0eFiZNEW80IUDDp5I5Zapw'
+    
+    bot = telebot.TeleBot(TOKEN)
+    chat_id = '-686901726'  # replace with the desired chat
+    now = datetime.now()
+    
+    orders_table = get_orders_table()
+    for row in orders_table:
+        if row:
+            try:                
+                delivery_date = datetime.strptime(row[3], '%d.%m.%Y')
+                if delivery_date < now:
+                    bot.send_message(chat_id, 
+                        f'Delivery time violated. Delivery date indicated {row[3]}.\
+                            Order number: {row[1]}.')
+            except Exception:
+                print(Exception)
+                
         
 def main():
-    """This function is scheduled to update the data in the
-    Database every two minutes"""
+    """This function runs scripts according to the set schedule."""
     
+    # script execution schedule can be edited as desired, for example:   
+    # schedule.every().day.at("10:30").do(sending_notification) 
     schedule.every(2).minutes.do(save_data_in_db)
+    schedule.every(2).minutes.do(sending_notification)
     while True:
         schedule.run_pending()
-    
+        
+   
 if __name__ == "__main__":
     main()
    
