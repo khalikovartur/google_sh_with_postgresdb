@@ -79,7 +79,7 @@ def sending_notification():
     """This function checks the delivery date in Google Sheets and if
     the deadline is violated, it sends a notification to Telegram"""
     
-    TOKEN = '5344813682:AAHbi46qwEBeI0eFiZNEW80IUDDp5I5Zapw'
+    TOKEN = ''  #  insert telegram token
     
     bot = telebot.TeleBot(TOKEN)
     chat_id = '-686901726'  # replace with the desired chat
