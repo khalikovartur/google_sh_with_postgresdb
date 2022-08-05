@@ -71,6 +71,8 @@ def save_data_in_db():
                               deliver_time=row[3],
                               cost_in_rubles=row[4])
                 order.save()
+            except ValueError:
+                print('Value Error. An incorrect value was passed.')
             except Exception:
                 print(Exception)
                 
@@ -94,6 +96,8 @@ def sending_notification():
                     bot.send_message(chat_id, 
                         f'Delivery time violated. Delivery date indicated {row[3]}.\
                             Order number: {row[1]}.')
+            except ValueError:
+                print('Value Error.An incorrect value was passed.')        
             except Exception:
                 print(Exception)
                 
