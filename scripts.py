@@ -48,7 +48,7 @@ def get_orders_table():
         range='A2:500',
         majorDimension='ROWS'
     ).execute()
-    return tuple(table_values['values'])
+    return table_values['values']
 
 
 def save_data_in_db():
