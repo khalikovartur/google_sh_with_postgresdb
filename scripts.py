@@ -16,7 +16,7 @@ from table.models import Order
 CENTR_BANK_RU_URL = 'https://www.cbr.ru/scripts/XML_daily.asp'
 GOOGLE_CREDENTIALS = 'creds.json'
 SPREAD_SHEET_ID = '1C4gRZeZ1C-fqDkUcjRzqbW5qvx_rZYlwj_FNrte3pGI'
-TELEGRAM_TOKEN = ''  #  insert telegram token
+TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')  #  insert telegram token
 TELEGRAM_CHAT_ID = '-686901726'  # replace with the desired chat
 
 
