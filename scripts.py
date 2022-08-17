@@ -12,11 +12,13 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 from table.models import Order
 
+
 CENTR_BANK_RU_URL = 'https://www.cbr.ru/scripts/XML_daily.asp'
 GOOGLE_CREDENTIALS = 'creds.json'
 SPREAD_SHEET_ID = '1C4gRZeZ1C-fqDkUcjRzqbW5qvx_rZYlwj_FNrte3pGI'
 TELEGRAM_TOKEN = ''  #  insert telegram token
 TELEGRAM_CHAT_ID = '-686901726'  # replace with the desired chat
+
 
 def get_usd_rate():
     """This function receives data on the dollar exchange rate
@@ -30,6 +32,7 @@ def get_usd_rate():
         if currency.attrib == {'ID': 'R01235'}:
             usd_rate = currency[4].text.replace(',', '.')
             return usd_rate
+
 
 def get_orders_table():  
     """This function gets the data from the document using
@@ -47,6 +50,7 @@ def get_orders_table():
         majorDimension='ROWS'
     ).execute()
     return table_values['values']
+
 
 def save_data_in_db():
     """This function saves data from google sheets in to 
@@ -72,6 +76,7 @@ def save_data_in_db():
                 print('Value Error. An incorrect value was passed.')
             except Exception:
                 print(Exception)
+     
                                
 def sending_notification():
     """This function checks the delivery date in Google Sheets and if
@@ -94,6 +99,7 @@ def sending_notification():
                 print('Value Error.An incorrect value was passed.')        
             except Exception:
                 print(Exception)
+         
                       
 def main():
     """This function runs scripts according to the set schedule."""
