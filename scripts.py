@@ -1,4 +1,6 @@
 import os
+import time
+import logging
 from datetime import datetime
 import schedule
 import requests
@@ -16,8 +18,23 @@ from table.models import Order
 CENTR_BANK_RU_URL = 'https://www.cbr.ru/scripts/XML_daily.asp'
 GOOGLE_CREDENTIALS = 'creds.json'
 SPREAD_SHEET_ID = '1C4gRZeZ1C-fqDkUcjRzqbW5qvx_rZYlwj_FNrte3pGI'
-TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')  #  insert telegram token
+TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')  
 TELEGRAM_CHAT_ID = '-686901726'  # replace with the desired chat
+
+
+def main():
+    """This function runs scripts according to the set schedule."""
+    
+    logging.basicConfig(filename='log_scripts.txt', level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s')
+    logging.debug('_________This is a start log message.__________')
+    
+    # script execution schedule can be edited as desired, for example:   
+    # schedule.every().day.at("10:30").do(sending_notification) 
+    schedule.every(1).minutes.do(save_data_in_db)
+    schedule.every(2).minutes.do(sending_notification)
+    while True:
+        schedule.run_pending()
 
 
 def get_usd_rate():
@@ -84,34 +101,28 @@ def sending_notification():
     
     bot = telebot.TeleBot(TELEGRAM_TOKEN)
     now = datetime.now()
+    count_notify_messages = 0  # Telegram API block more 20 messages in minute.
     
     orders_table = get_orders_table()
     for row in orders_table:
-        if row:
-            try:                
-                delivery_date = datetime.strptime(row[3], '%d.%m.%Y')
-                if delivery_date < now:
-                    bot.send_message(TELEGRAM_CHAT_ID, 
-                        f'Delivery time violated.\
-                        Delivery date indicated {row[3]}.\
-                        Order number: {row[1]}.')
+            try:
+                if row:                
+                    delivery_date = datetime.strptime(row[3], '%d.%m.%Y')
+                    if delivery_date < now:
+                        bot.send_message(TELEGRAM_CHAT_ID, 
+                            f'Delivery time violated.\
+                            Delivery date indicated: {row[3]}.\
+                            Order number: {row[1]}.')
+                        count_notify_messages += 1
+                        if count_notify_messages == 19:
+                            count_notify_messages = 0
+                            time.sleep(60)                           
             except ValueError:
-                print('Value Error.An incorrect value was passed.')        
+                print('Value Error.An incorrect value was passed.From notify func')        
             except Exception:
-                print(Exception)
+                print(f'From telegram notify func', Exception)
          
-                      
-def main():
-    """This function runs scripts according to the set schedule."""
-    
-    # script execution schedule can be edited as desired, for example:   
-    # schedule.every().day.at("10:30").do(sending_notification) 
-    schedule.every(2).minutes.do(save_data_in_db)
-    schedule.every(2).minutes.do(sending_notification)
-    while True:
-        schedule.run_pending()
-        
-   
+                        
 if __name__ == "__main__":
     main()
    

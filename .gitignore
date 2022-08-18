@@ -3,3 +3,5 @@ __pycache__
 .pyc
 creds.json
 setenv.sh
+log_scripts.txt
+logs_file.txt
