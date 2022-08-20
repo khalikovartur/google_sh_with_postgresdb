@@ -23,7 +23,8 @@ TELEGRAM_CHAT_ID = '-686901726'  # replace with the desired chat
 
 
 def main():
-    """This function runs scripts according to the set schedule."""
+    """This function logging debug and runs scripts according 
+    to the set schedule."""
     
     logging.basicConfig(filename='log_scripts.txt', level=logging.DEBUG,
     format='%(asctime)s - %(levelname)s - %(message)s')
@@ -99,19 +100,17 @@ def sending_notification():
     """This function checks the delivery date in Google Sheets and if
     the deadline is violated, it sends a notification to Telegram"""
     
+    orders_table = get_orders_table()
     bot = telebot.TeleBot(TELEGRAM_TOKEN)
     now = datetime.now()
     count_notify_messages = 0  # Telegram API block more 20 messages in minute.
-    
-    orders_table = get_orders_table()
     for row in orders_table:
             try:
                 if row:                
                     delivery_date = datetime.strptime(row[3], '%d.%m.%Y')
                     if delivery_date < now:
                         bot.send_message(TELEGRAM_CHAT_ID, 
-                            f'Delivery time violated.\
-                            Delivery date indicated: {row[3]}.\
+                            f'Delivery time violated.   Delivery date indicated: {row[3]}.\
                             Order number: {row[1]}.')
                         count_notify_messages += 1
                         if count_notify_messages == 19:
